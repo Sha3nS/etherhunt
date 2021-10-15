@@ -7,6 +7,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gorm_logger "gorm.io/gorm/logger"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"os"
 	"os/signal"
 	"syscall"
@@ -32,14 +33,11 @@ func InvokeCMD() *cobra.Command {
 // start this is real start function
 func invoke() {
 	// init server
-	proxyServer := server.NewGatewayServer()
-	if err := proxyServer.Start(); err != nil {
-		cliLog.Errorf("server start failed, %s", err.Error())
+	ethServer := server.NewEthereumClient()
+	if err := ethServer.Start(); err != nil {
+		fmt.Errorf("server start failed, err: %s", err.Error())
 		return
 	}
-	// 打印logo
-	printLogo()
-
 	// new an error channel to receive errors
 	errorC := make(chan error, 1)
 
@@ -50,7 +48,8 @@ func invoke() {
 	select {
 	case err := <-errorC:
 		if err != nil {
-			cliLog.Error("server encounters error ", err)
+			_ = fmt.Errorf("Service terminated")
+			return
 		}
 		err = proxyServer.Stop()
 		if err != nil {

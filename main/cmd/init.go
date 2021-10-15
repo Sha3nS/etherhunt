@@ -11,6 +11,7 @@ const (
 	flagMethod              = "method"
 	flagArgs				= "args"
 	flagAfterBlockHeight	= "height"
+	flagUrl 				= "url"
 )
 
 // attachFlags
