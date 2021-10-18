@@ -6,7 +6,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/etherium-client/main/cmd"
+	"github.com/etherhunt/main/cmd"
 	"github.com/spf13/cobra"
 )
 

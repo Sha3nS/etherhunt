@@ -2,7 +2,16 @@ package client
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"encoding/hex"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/etherhunt/module/client"
+	"google.golang.org/genproto/googleapis/cloud/vision/v1"
+	"math/big"
 )
 
 type EtherClient struct {
@@ -17,13 +26,148 @@ func NewEtherClient() *EtherClient {
 	}
 }
 
-func (c *EtherClient) Dial(url string) error {
-	client, err := ethclient.Dial(url)
+func (ec *EtherClient) Dial(url string) error {
+	c, err := ethclient.Dial(url)
 	if err != nil {
 		return err
 	}
-	c.client = client
+	ec.client = c
 	return nil
 }
 
+func (ec *EtherClient) BestBlockNumber() (uint64, error) {
+	if ec.client == nil {
+		return 0, client.NilClient
+	}
+	height, err := ec.client.BlockNumber(ec.ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return height, nil
+}
+
+func (ec *EtherClient) EstimateGas(msg *ethereum.CallMsg) (uint64, error) {
+	if ec.client == nil {
+		return 0, client.NilClient
+	}
+	gasUsed, err := ec.client.EstimateGas(ec.ctx, *msg)
+	if err != nil {
+		return 0, err
+	}
+
+	return gasUsed, nil
+}
+
+func (ec *EtherClient) GasPrice() (*big.Int, error) {
+	if ec.client == nil {
+		return nil, client.NilClient
+	}
+	gasPrice, err := ec.client.SuggestGasPrice(ec.ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return gasPrice, nil
+}
+
+
+func (ec *EtherClient) GasTipCap() (*big.Int, error) {
+	if ec.client == nil {
+		return nil, client.NilClient
+	}
+	gasTipCap, err := ec.client.SuggestGasTipCap(ec.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return gasTipCap, nil
+}
+
+func (ec *EtherClient) BalanceAtCurrent(address [20]byte) (*big.Int, error) {
+	if ec.client == nil {
+		return nil, client.NilClient
+	}
+	height, err := ec.BestBlockNumber()
+	if err != nil {
+		return nil ,err
+	}
+	gasTipCap, err := ec.client.BalanceAt(ec.ctx, address, big.NewInt(int64(height)))
+	if err != nil {
+		return nil, err
+	}
+
+	return gasTipCap, nil
+}
+
+func (ec *EtherClient) NonceAt(address [20]byte) (uint64, error) {
+	if ec.client == nil {
+		return 0, client.NilClient
+	}
+	height, err := ec.BestBlockNumber()
+	if err != nil {
+		return 0 ,err
+	}
+	gasTipCap, err := ec.client.NonceAt(ec.ctx, address, big.NewInt(int64(height)))
+	if err != nil {
+		return 0, err
+	}
+
+	return gasTipCap, nil
+}
+
+func (ec *EtherClient) BuildTx(address, to [20]byte, leverage int) (string, error) {
+	if ec.client == nil {
+		return "", client.NilClient
+	}
+	chainID, err := ec.client.ChainID(ec.ctx)
+	if err != nil {
+		return "", err
+	}
+	nonce, err := ec.NonceAt(address)
+	if err != nil {
+		return "", err
+	}
+	tipCap, err := ec.GasTipCap()
+	if err != nil {
+		return "", err
+	}
+
+	innerTx := &types.DynamicFeeTx{
+		ChainID: 	chainID,
+		Nonce: 		nonce,
+		GasTipCap:  tipCap,
+		GasFeeCap:  ,
+		Gas:        ,
+		To:         common.Address(to),
+		Value:      big.NewInt(0),
+		Data:       []byte{},
+		AccessList: AccessList,
+	}
+	transaction := types.NewTx(innerTx)
+	bz, err := transaction.MarshalBinary()
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(bz), nil
+}
+
+func (ec *EtherClient) SignTx(bz []byte, priv *ecdsa.PrivateKey) (string, error) {
+	if ec.client == nil {
+		return "", client.NilClient
+	}
+	transaction := types.NewTx(&types.DynamicFeeTx{})
+	err := transaction.UnmarshalBinary(bz)
+	if err != nil {
+		return "", err
+	}
+	types.SignTx(transaction, s, priv)
+
+	bz, err = transaction.WithSignature()
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(bz), nil
+}
 

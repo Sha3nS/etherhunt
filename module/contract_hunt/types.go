@@ -1,2 +1,0 @@
-package contract_hunt
-

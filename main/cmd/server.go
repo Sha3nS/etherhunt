@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/common-nighthawk/go-figure"
+	"github.com/etherhunt/config"
 	"github.com/spf13/cobra"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -20,6 +21,7 @@ func InvokeCMD() *cobra.Command {
 		Short: "eth invoke",
 		Long:  "eth invoke",
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			config.InitConfig()
 			invoke()
 			fmt.Println("server stopped")
 			return nil
