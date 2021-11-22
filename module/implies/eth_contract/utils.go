@@ -3,7 +3,7 @@ package eth_contract
 import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/etherhunt/config"
+	"github.com/shawncles/etherhunt/config"
 )
 
 const (

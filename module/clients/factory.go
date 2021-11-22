@@ -2,7 +2,7 @@ package clients
 
 import (
 	"fmt"
-	client "github.com/etherhunt/module/clients/types"
+	client "github.com/shawncles/etherhunt/module/clients/types"
 )
 
 const (

@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/common-nighthawk/go-figure"
-	"github.com/etherhunt/config"
+	"github.com/shawncles/etherhunt/config"
 	"github.com/spf13/cobra"
 	"os"
 	"os/signal"

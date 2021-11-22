@@ -2,9 +2,9 @@ package eth_contract
 
 import (
 	"context"
-	"github.com/etherhunt/module/clients"
-	ctypes "github.com/etherhunt/module/clients/types"
-	localcontext "github.com/etherhunt/module/contexts"
+	"github.com/shawncles/etherhunt/module/clients"
+	ctypes "github.com/shawncles/etherhunt/module/clients/types"
+	localcontext "github.com/shawncles/etherhunt/module/contexts"
 )
 
 type ContractHunt struct {
