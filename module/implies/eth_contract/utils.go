@@ -1,4 +1,4 @@
-package ether_contract_hunt
+package eth_contract
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ func GetChainConfig() (*params.ChainConfig, error) {
 	case Goerli:
 		return params.GoerliChainConfig, nil
 	default:
-		return nil, fmt.Errorf("unknown chain type: %s, please select from\n MainNet、Ropsten、Rinkeby、Goerli", config.ChainType)
+		return nil, fmt.Errorf("unknown chaintype: %s, surrently suppport:\n MainNet、Ropsten、Rinkeby、Goerli", config.ChainType)
 	}
 }
 

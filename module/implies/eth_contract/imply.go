@@ -1,10 +1,10 @@
-package ether_contract_hunt
+package eth_contract
 
 import (
 	"context"
-	"github.com/etherhunt/module/client"
-	ctypes "github.com/etherhunt/module/client/types"
-	mcontext "github.com/etherhunt/module/context"
+	"github.com/etherhunt/module/clients"
+	ctypes "github.com/etherhunt/module/clients/types"
+	localcontext "github.com/etherhunt/module/contexts"
 )
 
 type ContractHunt struct {
@@ -13,7 +13,7 @@ type ContractHunt struct {
 }
 
 func NewContractHunt() *ContractHunt {
-	c := client.CreateClient(client.ClientType_ETH)
+	c := clients.CreateClient(clients.ClientType_ETH)
 	ethClient, ok := c.(*ctypes.EtherClient)
 	if !ok {
 		return nil
@@ -24,12 +24,12 @@ func NewContractHunt() *ContractHunt {
 	}
 }
 
-func (h *ContractHunt) Watch(url string, invokeContext mcontext.InvokeContext) error {
+func (h *ContractHunt) Watch(url string, invokeContext localcontext.InvokeContext) error {
 	err := h.client.Dial(url)
 	if err != nil {
 		return err
 	}
-	h.client.
+	h.client
 	invokeContext.Contract
 	invokeContext.Method
 	invokeContext.Params

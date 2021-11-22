@@ -1,2 +1,0 @@
-package ether_contract_hunt
-

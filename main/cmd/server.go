@@ -5,10 +5,6 @@ import (
 	"github.com/common-nighthawk/go-figure"
 	"github.com/etherhunt/config"
 	"github.com/spf13/cobra"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	gorm_logger "gorm.io/gorm/logger"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,12 +14,15 @@ import (
 func InvokeCMD() *cobra.Command {
 	startCmd := &cobra.Command{
 		Use:   "invoke",
-		Short: "eth invoke",
-		Long:  "eth invoke",
+		Short: "evm invoke",
+		Long:  "evm invoke",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			config.InitConfig()
+			err := config.InitConfig()
+			if err != nil {
+				fmt.Printf("init config error: %s\n", err)
+			}
 			invoke()
-			fmt.Println("server stopped")
+			fmt.Println("supervisor stopped")
 			return nil
 		},
 	}
@@ -35,7 +34,7 @@ func InvokeCMD() *cobra.Command {
 // start this is real start function
 func invoke() {
 	// init server
-	ethServer := server.NewEthereumClient()
+	ethServer := server.NewEvmClient()
 	if err := ethServer.Start(); err != nil {
 		fmt.Errorf("server start failed, err: %s", err.Error())
 		return

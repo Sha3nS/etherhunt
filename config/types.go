@@ -6,19 +6,16 @@ import (
 )
 
 var (
-	ChainType = "MainNet"
-	Config = HostConfig{}
-)
-
-var (
-	configFile = "./config.yml"
-
+	ChainType 	= "MainNet"
+	configFile 	= "./config.yml"
+	Config 		= HostConfig{}
 )
 
 type HostConfig struct {
-	InvokeHeight 	uint64
-	ContractAddress []byte
-
+	InvokeHeight 	uint64		`yaml:"Height"`
+	ContractAddress []byte		`yaml:"Address"`
+	ContractParams 	[]string 	`yaml:"Params"`
+	PrivateKeyPath  string		`yaml:"KeyPath"`
 }
 
 func InitConfig() error {

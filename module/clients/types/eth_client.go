@@ -7,10 +7,8 @@ import (
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/etherhunt/module/client"
-	"google.golang.org/genproto/googleapis/cloud/vision/v1"
+	"github.com/etherhunt/module/clients"
 	"math/big"
 )
 
@@ -37,7 +35,7 @@ func (ec *EtherClient) Dial(url string) error {
 
 func (ec *EtherClient) BestBlockNumber() (uint64, error) {
 	if ec.client == nil {
-		return 0, client.NilClient
+		return 0, clients.NilClient
 	}
 	height, err := ec.client.BlockNumber(ec.ctx)
 	if err != nil {
@@ -49,7 +47,7 @@ func (ec *EtherClient) BestBlockNumber() (uint64, error) {
 
 func (ec *EtherClient) EstimateGas(msg *ethereum.CallMsg) (uint64, error) {
 	if ec.client == nil {
-		return 0, client.NilClient
+		return 0, clients.NilClient
 	}
 	gasUsed, err := ec.client.EstimateGas(ec.ctx, *msg)
 	if err != nil {
@@ -61,7 +59,7 @@ func (ec *EtherClient) EstimateGas(msg *ethereum.CallMsg) (uint64, error) {
 
 func (ec *EtherClient) GasPrice() (*big.Int, error) {
 	if ec.client == nil {
-		return nil, client.NilClient
+		return nil, clients.NilClient
 	}
 	gasPrice, err := ec.client.SuggestGasPrice(ec.ctx)
 	if err != nil {
@@ -74,7 +72,7 @@ func (ec *EtherClient) GasPrice() (*big.Int, error) {
 
 func (ec *EtherClient) GasTipCap() (*big.Int, error) {
 	if ec.client == nil {
-		return nil, client.NilClient
+		return nil, clients.NilClient
 	}
 	gasTipCap, err := ec.client.SuggestGasTipCap(ec.ctx)
 	if err != nil {
@@ -85,7 +83,7 @@ func (ec *EtherClient) GasTipCap() (*big.Int, error) {
 
 func (ec *EtherClient) BalanceAtCurrent(address [20]byte) (*big.Int, error) {
 	if ec.client == nil {
-		return nil, client.NilClient
+		return nil, clients.NilClient
 	}
 	height, err := ec.BestBlockNumber()
 	if err != nil {
@@ -101,7 +99,7 @@ func (ec *EtherClient) BalanceAtCurrent(address [20]byte) (*big.Int, error) {
 
 func (ec *EtherClient) NonceAt(address [20]byte) (uint64, error) {
 	if ec.client == nil {
-		return 0, client.NilClient
+		return 0, clients.NilClient
 	}
 	height, err := ec.BestBlockNumber()
 	if err != nil {
@@ -117,7 +115,7 @@ func (ec *EtherClient) NonceAt(address [20]byte) (uint64, error) {
 
 func (ec *EtherClient) BuildTx(address, to [20]byte, leverage int) (string, error) {
 	if ec.client == nil {
-		return "", client.NilClient
+		return "", clients.NilClient
 	}
 	chainID, err := ec.client.ChainID(ec.ctx)
 	if err != nil {
@@ -131,18 +129,25 @@ func (ec *EtherClient) BuildTx(address, to [20]byte, leverage int) (string, erro
 	if err != nil {
 		return "", err
 	}
-
-	innerTx := &types.DynamicFeeTx{
-		ChainID: 	chainID,
-		Nonce: 		nonce,
-		GasTipCap:  tipCap,
-		GasFeeCap:  ,
-		Gas:        ,
-		To:         common.Address(to),
-		Value:      big.NewInt(0),
-		Data:       []byte{},
-		AccessList: AccessList,
+	gas, err := ec.GasPrice()
+	if err != nil {
+		return "", err
 	}
+
+	addr := common.Address(to)
+
+	innerTx := &types.DynamicFeeTx{ // TODO
+		ChainID: 	chainID,
+		Nonce: 		nonce + 1,
+		GasTipCap:  tipCap,
+		GasFeeCap:  big.NewInt(21000),
+		Gas:        gas.Uint64(),
+		To:         &addr,
+		Value:      big.NewInt(0),
+		Data:       nil,
+		AccessList: nil,
+	}
+
 	transaction := types.NewTx(innerTx)
 	bz, err := transaction.MarshalBinary()
 	if err != nil {
@@ -154,20 +159,28 @@ func (ec *EtherClient) BuildTx(address, to [20]byte, leverage int) (string, erro
 
 func (ec *EtherClient) SignTx(bz []byte, priv *ecdsa.PrivateKey) (string, error) {
 	if ec.client == nil {
-		return "", client.NilClient
+		return "", clients.NilClient
 	}
 	transaction := types.NewTx(&types.DynamicFeeTx{})
 	err := transaction.UnmarshalBinary(bz)
 	if err != nil {
 		return "", err
 	}
-	types.SignTx(transaction, s, priv)
+	chainID, err := ec.client.ChainID(ec.ctx)
+	if err != nil {
+		return "", err
+	}
+	signer := types.NewEIP155Signer(chainID)
 
-	bz, err = transaction.WithSignature()
+	tx, err := types.SignTx(transaction, signer, priv)
+	if err != nil {
+		return "", err
+	}
+	data, err := tx.MarshalBinary()
 	if err != nil {
 		return "", err
 	}
 
-	return hex.EncodeToString(bz), nil
+	return hex.EncodeToString(data), nil
 }
 
