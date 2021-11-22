@@ -26,8 +26,9 @@ func InvokeCMD() *cobra.Command {
 			return nil
 		},
 	}
-	attachFlags(startCmd, []string{flagPrivateKey, flagContract, flagMethod, flagArgs, flagAfterBlockHeight})
+	attachFlags(startCmd, []string{flagConfigPath})
 
+	startCmd.Flags().StringVar(&config.ConfigPath, "config path", "./config.yml", "Provide you local config yaml file path")
 	return startCmd
 }
 

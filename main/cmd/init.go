@@ -6,12 +6,7 @@ import (
 )
 
 const (
-	flagPrivateKey          = "pk"
-	flagContract            = "contract"
-	flagMethod              = "method"
-	flagArgs				= "args"
-	flagAfterBlockHeight	= "height"
-	flagUrl 				= "url"
+	flagConfigPath  = "config"
 )
 
 // attachFlags

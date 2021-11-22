@@ -6,24 +6,25 @@ import (
 )
 
 var (
-	ChainType 	= "MainNet"
-	configFile 	= "./config.yml"
+	ConfigPath 	= "./config.yml"
 	Config 		= HostConfig{}
 )
 
 type HostConfig struct {
+	ChainType		string		`yaml:"ChainType"`
+	URL				string		`yaml:"URL"`
 	InvokeHeight 	uint64		`yaml:"Height"`
-	ContractAddress []byte		`yaml:"Address"`
+	ContractAddress string		`yaml:"Address"`
 	ContractParams 	[]string 	`yaml:"Params"`
 	PrivateKeyPath  string		`yaml:"KeyPath"`
 }
 
 func InitConfig() error {
-	fileBz, err := ioutil.ReadFile(configFile)
+	fileBz, err := ioutil.ReadFile(ConfigPath)
 	if err != nil {
 		return err
 	}
-	err = yaml.Unmarshal(fileBz, Config)
+	err = yaml.Unmarshal(fileBz, &Config)
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,8 @@
-HostConfig:
-  Height: 10000
-  Address: 0x111
-  Params:
-    - aaa
-    - bbb
-  KeyPath: /Users/shawnshen/workspace/project/etherhunt/privkey
+ChainType: MainNet #
+URL: https://rinkeby.infura.io
+Height: 10000
+Address: 0x111
+Params:
+  - aaa
+  - bbb
+KeyPath: /Users/shawnshen/workspace/project/etherhunt/privkey
