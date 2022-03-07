@@ -1,9 +1,8 @@
-package eth_contract
+package eth_contract_watcher
 
 import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/shawncles/etherhunt/config"
 )
 
 const (
@@ -13,8 +12,8 @@ const (
 	Goerli 	= "Goerli"
 )
 
-func GetChainConfig() (*params.ChainConfig, error) {
-	switch config.ChainType {
+func GetChainConfig(chainType string) (*params.ChainConfig, error) {
+	switch chainType {
 	case MainNet:
 		return params.MainnetChainConfig, nil
 	case Ropsten:
@@ -24,7 +23,7 @@ func GetChainConfig() (*params.ChainConfig, error) {
 	case Goerli:
 		return params.GoerliChainConfig, nil
 	default:
-		return nil, fmt.Errorf("unknown chaintype: %s, surrently suppport:\n MainNet、Ropsten、Rinkeby、Goerli", config.ChainType)
+		return nil, fmt.Errorf("unknown chaintype: %s, surrently suppport:\n MainNet、Ropsten、Rinkeby、Goerli", chainType)
 	}
 }
 

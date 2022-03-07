@@ -113,7 +113,7 @@ func (ec *EtherClient) NonceAt(address [20]byte) (uint64, error) {
 	return gasTipCap, nil
 }
 
-func (ec *EtherClient) BuildTx(address, to [20]byte, leverage int) (string, error) {
+func (ec *EtherClient) BuildTx(address, to [20]byte, data []byte, leverage int) (string, error) {
 	if ec.client == nil {
 		return "", clients.NilClient
 	}
@@ -144,7 +144,7 @@ func (ec *EtherClient) BuildTx(address, to [20]byte, leverage int) (string, erro
 		Gas:        gas.Uint64(),
 		To:         &addr,
 		Value:      big.NewInt(0),
-		Data:       nil,
+		Data:       data,
 		AccessList: nil,
 	}
 
@@ -184,3 +184,12 @@ func (ec *EtherClient) SignTx(bz []byte, priv *ecdsa.PrivateKey) (string, error)
 	return hex.EncodeToString(data), nil
 }
 
+func (ec *EtherClient) BroadcastTx(hex string) (string, error) {
+	transaction := types.NewTx(&types.DynamicFeeTx{})
+	err := transaction.UnmarshalBinary([]byte(hex))
+	if err != nil {
+		return "", err
+	}
+	err = ec.client.SendTransaction(ec.ctx, transaction)
+	return transaction.Hash().Hex(), err
+}

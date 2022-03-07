@@ -1,7 +1,7 @@
 package contexts
 
 type InvokeContext struct {
-	Contract string
+	Contract [20]byte
 	Method string
 	Params [][]byte
 }

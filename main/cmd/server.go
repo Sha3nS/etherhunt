@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/common-nighthawk/go-figure"
 	"github.com/shawncles/etherhunt/config"
+	"github.com/shawncles/etherhunt/module/clients"
 	"github.com/spf13/cobra"
 	"os"
 	"os/signal"
@@ -35,7 +36,7 @@ func InvokeCMD() *cobra.Command {
 // start this is real start function
 func invoke() {
 	// init server
-	ethServer := server.NewEvmClient()
+	client := clients.CreateClient(clients.ClientType_ETH)
 	if err := ethServer.Start(); err != nil {
 		fmt.Errorf("server start failed, err: %s", err.Error())
 		return
